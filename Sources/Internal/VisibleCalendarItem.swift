@@ -34,7 +34,7 @@ final class VisibleCalendarItem {
     self.frame = frame
 
     var hasher = Hasher()
-    hasher.combine(calendarItem.reuseIdentifier)
+    hasher.combine(calendarItem.itemViewDifferentiator)
     hasher.combine(itemType)
     cachedHashValue = hasher.finalize()
   }

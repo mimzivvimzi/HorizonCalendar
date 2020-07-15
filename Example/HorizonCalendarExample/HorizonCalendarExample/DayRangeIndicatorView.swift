@@ -13,15 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import HorizonCalendar
 import UIKit
 
 // MARK: - DayRangeIndicatorView
 
-final class DayRangeIndicatorView: UIView {
+final class DayRangeIndicatorView: UIView, CalendarItemView {
 
   // MARK: Lifecycle
 
-  init() {
+  init(initialConfiguration: InitialConfiguration) {
     super.init(frame: .zero)
     backgroundColor = .clear
   }
@@ -32,11 +33,8 @@ final class DayRangeIndicatorView: UIView {
 
   // MARK: Internal
 
-  var framesOfDaysToHighlight = [CGRect]() {
-    didSet {
-      guard framesOfDaysToHighlight != oldValue else { return }
-      setNeedsDisplay()
-    }
+  func setViewModel(_ viewModel: ViewModel) {
+    framesOfDaysToHighlight = viewModel.framesOfDaysToHighlight
   }
 
   override func draw(_ rect: CGRect) {
@@ -63,6 +61,33 @@ final class DayRangeIndicatorView: UIView {
       context?.addPath(roundedRectanglePath.cgPath)
       context?.fillPath()
     }
+  }
+
+  // MARK: Private
+
+  private var framesOfDaysToHighlight = [CGRect]() {
+    didSet {
+      guard framesOfDaysToHighlight != oldValue else { return }
+      setNeedsDisplay()
+    }
+  }
+
+}
+
+// MARK: - InitialConfiguration
+
+extension DayRangeIndicatorView {
+
+  struct InitialConfiguration: Hashable { }
+
+}
+
+// MARK: - ViewModel
+
+extension DayRangeIndicatorView {
+
+  struct ViewModel: Equatable {
+    let framesOfDaysToHighlight: [CGRect]
   }
 
 }

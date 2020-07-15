@@ -115,35 +115,29 @@ final class SelectedDayTooltipDemoViewController: UIViewController, DemoViewCont
 
       .withInterMonthSpacing(24)
 
-      .withDayItemProvider { day in
+      .withDayItemProvider { [weak self] day in
         let isSelected = day == selectedDay
 
-        return CalendarItem<DayView, Day>(
-          viewModel: day,
-          styleID: isSelected ? "Selected" : "Default",
-          buildView: { DayView(isSelectedStyle: isSelected) },
-          updateViewModel: { [weak self] dayView, day in
-            dayView.dayText = "\(day.day)"
+        let dayText = "\(day.day)"
 
-            if let date = self?.calendar.date(from: day.components) {
-              dayView.dayAccessibilityText = self?.dayDateFormatter.string(from: date)
-            } else {
-              dayView.dayAccessibilityText = nil
-            }
-          },
-          updateHighlightState: { dayView, isHighlighted in
-            dayView.isHighlighted = isHighlighted
-          })
+        let dayAccessibilityText: String?
+        if let date = self?.calendar.date(from: day.components) {
+          dayAccessibilityText = self?.dayDateFormatter.string(from: date)
+        } else {
+          dayAccessibilityText = nil
+        }
+
+        return CalendarItem<DayView>(
+          initialConfiguration: .init(isSelectedStyle: isSelected),
+          viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
 
       .withOverlayItemProvider(for: overlaidItemLocations) { overlayLayoutContext in
-        CalendarItem<TooltipView, CGRect>(
-          viewModel: overlayLayoutContext.overlaidItemFrame,
-          styleID: "DayTooltip",
-          buildView: { TooltipView(text: "Selected Day") },
-          updateViewModel: { view, frameOfItemToOverlay in
-            view.frameOfTooltippedItem = frameOfItemToOverlay
-          })
+        CalendarItem<TooltipView>(
+          initialConfiguration: .init(),
+          viewModel: .init(
+            text: "Selected Day",
+            frameOfTooltippedItem: overlayLayoutContext.overlaidItemFrame))
       }
   }
 

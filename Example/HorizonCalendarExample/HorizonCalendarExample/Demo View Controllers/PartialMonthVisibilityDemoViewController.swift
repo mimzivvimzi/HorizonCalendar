@@ -96,25 +96,21 @@ final class PartialMonthVisibilityDemoViewController: UIViewController, DemoView
       .withVerticalDayMargin(8)
       .withHorizontalDayMargin(8)
 
-      .withDayItemProvider { day in
+      .withDayItemProvider { [weak self] day in
         let isSelected = day == selectedDay
 
-        return CalendarItem<DayView, Day>(
-          viewModel: day,
-          styleID: isSelected ? "Selected" : "Default",
-          buildView: { DayView(isSelectedStyle: isSelected) },
-          updateViewModel: { [weak self] dayView, day in
-            dayView.dayText = "\(day.day)"
+        let dayText = "\(day.day)"
 
-            if let date = self?.calendar.date(from: day.components) {
-              dayView.dayAccessibilityText = self?.dayDateFormatter.string(from: date)
-            } else {
-              dayView.dayAccessibilityText = nil
-            }
-          },
-          updateHighlightState: { dayView, isHighlighted in
-            dayView.isHighlighted = isHighlighted
-          })
+        let dayAccessibilityText: String?
+        if let date = self?.calendar.date(from: day.components) {
+          dayAccessibilityText = self?.dayDateFormatter.string(from: date)
+        } else {
+          dayAccessibilityText = nil
+        }
+
+        return CalendarItem<DayView>(
+          initialConfiguration: .init(isSelectedStyle: isSelected),
+          viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
   }
 

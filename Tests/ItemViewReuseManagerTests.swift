@@ -16,14 +16,14 @@
 import XCTest
 @testable import HorizonCalendar
 
-// MARK: - CalendarItemViewReuseManagerTests
+// MARK: - ItemViewReuseManagerTests
 
-final class CalendarItemViewReuseManagerTests: XCTestCase {
+final class ItemViewReuseManagerTests: XCTestCase {
 
   // MARK: Internal
 
   override func setUp() {
-    reuseManager = CalendarItemViewReuseManager()
+    reuseManager = ItemViewReuseManager()
   }
 
   func testInitialViewCreationWithNoReuse() {
@@ -180,7 +180,7 @@ final class CalendarItemViewReuseManagerTests: XCTestCase {
       subsequentVisibleItems,
       viewHandler: { _, item, previousBackingItem in
         XCTAssert(
-          item.calendarItem.reuseIdentifier == previousBackingItem?.calendarItem.reuseIdentifier,
+          item.calendarItem.itemViewDifferentiator == previousBackingItem?.calendarItem.itemViewDifferentiator,
           """
             Expected the new item to have the same reuse identifier as the previous backing item,
             since it was reused.
@@ -270,10 +270,11 @@ final class CalendarItemViewReuseManagerTests: XCTestCase {
     reuseManager.viewsForVisibleItems(
       subsequentVisibleItems,
       viewHandler: { _, item, previousBackingItem in
-        switch item.calendarItem.reuseIdentifier {
-        case "item_type_1", "item_type_3":
+        switch item.calendarItem.itemViewDifferentiator {
+        case .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")),
+             .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_3")):
           XCTAssert(
-            item.calendarItem.reuseIdentifier == previousBackingItem?.calendarItem.reuseIdentifier,
+            item.calendarItem.itemViewDifferentiator == previousBackingItem?.calendarItem.itemViewDifferentiator,
             """
               Expected the new item to have the same reuse identifier as the previous backing item,
               since it was reused.
@@ -394,42 +395,42 @@ final class CalendarItemViewReuseManagerTests: XCTestCase {
     reuseManager.viewsForVisibleItems(initialVisibleItems, viewHandler: { _, _, _ in })
 
     // Ensure the correct subset of views are reused given the subsequent visible items
-    var reuseCountsForReuseIDs = [String: Int]()
-    var newViewCountsForReuseIDs = [String: Int]()
+    var reuseCountsForDifferentiators = [CalendarItemViewDifferentiator: Int]()
+    var newViewCountsForDifferentiators = [CalendarItemViewDifferentiator: Int]()
     reuseManager.viewsForVisibleItems(
       subsequentVisibleItems,
       viewHandler: { _, item, previousBackingItem in
         if previousBackingItem != nil {
-          let reuseCount = (reuseCountsForReuseIDs[item.calendarItem.reuseIdentifier] ?? 0) + 1
-          reuseCountsForReuseIDs[item.calendarItem.reuseIdentifier] = reuseCount
+          let reuseCount = (reuseCountsForDifferentiators[item.calendarItem.itemViewDifferentiator] ?? 0) + 1
+          reuseCountsForDifferentiators[item.calendarItem.itemViewDifferentiator] = reuseCount
         } else {
-          let newViewCount = (newViewCountsForReuseIDs[item.calendarItem.reuseIdentifier] ?? 0) + 1
-          newViewCountsForReuseIDs[item.calendarItem.reuseIdentifier] = newViewCount
+          let newViewCount = (newViewCountsForDifferentiators[item.calendarItem.itemViewDifferentiator] ?? 0) + 1
+          newViewCountsForDifferentiators[item.calendarItem.itemViewDifferentiator] = newViewCount
         }
       })
 
-    let expectedReuseCountsForReuseIDs = [
-      "item_type_0": 2,
-      "item_type_1": 3,
+    let expectedReuseCountsForDifferentiators: [CalendarItemViewDifferentiator: Int] = [
+      .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_0")): 2,
+       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")): 3,
     ]
-    let expectedNewViewCountsForReuseIDs = [
-      "item_type_0": 1,
-      "item_type_1": 2,
-      "item_type_2": 1,
+    let expectedNewViewCountsForDifferentiators: [CalendarItemViewDifferentiator: Int] = [
+       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_0")): 1,
+       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")): 2,
+       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_2")): 1,
     ]
 
     XCTAssert(
-      reuseCountsForReuseIDs == expectedReuseCountsForReuseIDs,
+      reuseCountsForDifferentiators == expectedReuseCountsForDifferentiators,
       "The number of reuses does not match the expected number of reuses.")
 
     XCTAssert(
-      newViewCountsForReuseIDs == expectedNewViewCountsForReuseIDs,
+      newViewCountsForDifferentiators == expectedNewViewCountsForDifferentiators,
       "The number of new view creations does not match the expected number of new view creations.")
   }
 
   // MARK: Private
 
-  private var reuseManager: CalendarItemViewReuseManager!
+  private var reuseManager: ItemViewReuseManager!
 
 }
 
@@ -440,19 +441,27 @@ private struct MockCalendarItem: AnyCalendarItem {
   // MARK: Lifecycle
 
   init(reuseIdentifier: String) {
-    self.reuseIdentifier = reuseIdentifier
+    itemViewDifferentiator = CalendarItemViewDifferentiator(
+      viewType: AnyHashable(0),
+      initialConfiguration: AnyHashable(reuseIdentifier))
   }
 
   // MARK: Internal
 
-  let reuseIdentifier: String
-  var isInteractive = false
+  let itemViewDifferentiator: CalendarItemViewDifferentiator
 
   func buildView() -> UIView { UIView() }
 
   func updateViewModel(view: UIView) { }
 
   func updateHighlightState(view: UIView, isHighlighted: Bool) { }
+
+  func isInitialConfiguration(
+    equalToInitialConfigurationOf otherCalendarItem: CalendarItemInitialConfigurationEquatable)
+    -> Bool
+  {
+    false
+  }
 
   func isViewModel(equalToViewModelOf otherCalendarItem: CalendarItemViewModelEquatable) -> Bool {
     false

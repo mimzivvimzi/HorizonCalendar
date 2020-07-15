@@ -13,20 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import HorizonCalendar
 import UIKit
 
 // MARK: - TooltipView
 
-final class TooltipView: UIView {
+final class TooltipView: UIView, CalendarItemView {
 
   // MARK: Lifecycle
 
-  init(text: String) {
+  init(initialConfiguration: InitialConfiguration) {
     super.init(frame: .zero)
 
     addSubview(backgroundView)
 
-    label.text = text
     addSubview(label)
   }
 
@@ -36,11 +36,9 @@ final class TooltipView: UIView {
 
   // MARK: Internal
 
-  var frameOfTooltippedItem: CGRect? {
-    didSet {
-      guard frameOfTooltippedItem != oldValue else { return }
-      setNeedsLayout()
-    }
+  func setViewModel(_ viewModel: ViewModel) {
+    label.text = viewModel.text
+    frameOfTooltippedItem = viewModel.frameOfTooltippedItem
   }
 
   override func layoutSubviews() {
@@ -93,5 +91,31 @@ final class TooltipView: UIView {
     label.textColor = .black
     return label
   }()
+
+  private var frameOfTooltippedItem: CGRect? {
+    didSet {
+      guard frameOfTooltippedItem != oldValue else { return }
+      setNeedsLayout()
+    }
+  }
+
+}
+
+// MARK: - InitialConfiguration
+
+extension TooltipView {
+
+  struct InitialConfiguration: Hashable { }
+
+}
+
+// MARK: - ViewModel
+
+extension TooltipView {
+
+  struct ViewModel: Equatable {
+    let text: String
+    let frameOfTooltippedItem: CGRect?
+  }
 
 }

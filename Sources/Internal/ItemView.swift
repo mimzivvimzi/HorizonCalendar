@@ -16,7 +16,7 @@
 import UIKit
 
 /// The container view for every visual item that can be displayed in the calendar.
-final class CalendarItemView: UIView {
+final class ItemView: UIView {
 
   // MARK: Lifecycle
 
@@ -44,13 +44,14 @@ final class CalendarItemView: UIView {
 
   var calendarItem: AnyCalendarItem {
     didSet {
-      guard calendarItem.reuseIdentifier == oldValue.reuseIdentifier else {
+      guard calendarItem.isInitialConfiguration(equalToInitialConfigurationOf: oldValue) else {
         preconditionFailure("""
-          Cannot configure a reused `CalendarItemView` with a `visibleItem` that has a different
-          reuse identifier (\(calendarItem.reuseIdentifier) than \(oldValue.reuseIdentifier)).
+          Cannot configure a reused `ItemView` with a calendar item that was created with a
+          different initial configuration.
         """)
       }
 
+      // Only update the view model if it's different from the old one.
       guard !calendarItem.isViewModel(equalToViewModelOf: oldValue) else { return }
 
       updateViewModel()
@@ -67,41 +68,15 @@ final class CalendarItemView: UIView {
     contentView.frame = bounds
   }
 
-  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    super.touchesBegan(touches, with: event)
-
-    isHighlighted = true
-  }
-  override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-    super.touchesMoved(touches, with: event)
-
-    isHighlighted = touches.first.map(isTouchInView(_:)) ?? false
-  }
-
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     super.touchesEnded(touches, with: event)
-
-    isHighlighted = false
 
     if touches.first.map(isTouchInView(_:)) ?? false {
       selectionHandler?()
     }
   }
 
-  override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-    super.touchesCancelled(touches, with: event)
-
-    isHighlighted = false
-  }
-
   // MARK: Private
-
-  private var isHighlighted = false {
-    didSet {
-      guard isHighlighted != oldValue else { return }
-      calendarItem.updateHighlightState(view: contentView, isHighlighted: isHighlighted)
-    }
-  }
 
   private func updateViewModel() {
     calendarItem.updateViewModel(view: contentView)
@@ -115,7 +90,7 @@ final class CalendarItemView: UIView {
 
 // MARK: UIAccessibility
 
-extension CalendarItemView {
+extension ItemView {
 
   override var isAccessibilityElement: Bool {
     get { false }

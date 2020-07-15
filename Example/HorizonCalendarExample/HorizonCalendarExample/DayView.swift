@@ -13,21 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import HorizonCalendar
 import UIKit
 
 // MARK: - DayView
 
-final class DayView: UIView {
+final class DayView: UIView, CalendarItemView {
 
   // MARK: Lifecycle
 
-  init(isSelectedStyle: Bool) {
+  init(initialConfiguration: InitialConfiguration) {
     super.init(frame: .zero)
 
     addSubview(dayLabel)
 
     layer.borderColor = UIColor.blue.cgColor
-    layer.borderWidth = isSelectedStyle ? 2 : 0
+    layer.borderWidth = initialConfiguration.isSelectedStyle ? 2 : 0
   }
 
   required init?(coder: NSCoder) {
@@ -36,17 +37,9 @@ final class DayView: UIView {
 
   // MARK: Internal
 
-  var dayText: String {
-    get { dayLabel.text ?? "" }
-    set { dayLabel.text = newValue }
-  }
-
-  var dayAccessibilityText: String?
-
-  var isHighlighted = false {
-    didSet {
-      updateHighlightIndicator()
-    }
+  func setViewModel(_ viewModel: ViewModel) {
+    dayLabel.text = viewModel.dayText
+    dayAccessibilityText = viewModel.dayAccessibilityText
   }
 
   override func layoutSubviews() {
@@ -55,7 +48,24 @@ final class DayView: UIView {
     layer.cornerRadius = min(bounds.width, bounds.height) / 2
   }
 
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    super.touchesBegan(touches, with: event)
+    updateHighlightState(isHighlighted: true)
+  }
+
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    super.touchesEnded(touches, with: event)
+    updateHighlightState(isHighlighted: false)
+  }
+
+  override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+    super.touchesCancelled(touches, with: event)
+    updateHighlightState(isHighlighted: false)
+  }
+
   // MARK: Private
+
+  private var dayAccessibilityText: String?
 
   private lazy var dayLabel: UILabel = {
     let label = UILabel()
@@ -69,7 +79,7 @@ final class DayView: UIView {
     return label
   }()
 
-  private func updateHighlightIndicator() {
+  private func updateHighlightState(isHighlighted: Bool) {
     backgroundColor = isHighlighted ? UIColor.black.withAlphaComponent(0.1) : .clear
   }
 
@@ -85,8 +95,29 @@ extension DayView {
   }
 
   override var accessibilityLabel: String? {
-    get { dayAccessibilityText ?? dayText }
+    get { dayAccessibilityText ?? dayLabel.text }
     set { }
+  }
+
+}
+
+// MARK: - InitialConfiguration
+
+extension DayView {
+
+  struct InitialConfiguration: Hashable {
+    let isSelectedStyle: Bool
+  }
+
+}
+
+// MARK: - ViewModel
+
+extension DayView {
+
+  struct ViewModel: Equatable {
+    let dayText: String
+    let dayAccessibilityText: String?
   }
 
 }

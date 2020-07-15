@@ -132,7 +132,7 @@ final class DayRangeSelectionDemoViewController: UIViewController, DemoViewContr
       .withVerticalDayMargin(8)
       .withHorizontalDayMargin(8)
 
-      .withDayItemProvider { day in
+      .withDayItemProvider { [weak self] day in
         let isSelected: Bool
         switch calendarSelection {
         case .singleDay(let selectedDay):
@@ -143,32 +143,26 @@ final class DayRangeSelectionDemoViewController: UIViewController, DemoViewContr
           isSelected = false
         }
 
-        return CalendarItem<DayView, Day>(
-          viewModel: day,
-          styleID: isSelected ? "Selected" : "Default",
-          buildView: { DayView(isSelectedStyle: isSelected) },
-          updateViewModel: { [weak self] dayView, day in
-            dayView.dayText = "\(day.day)"
+        let dayText = "\(day.day)"
 
-            if let date = self?.calendar.date(from: day.components) {
-              dayView.dayAccessibilityText = self?.dayDateFormatter.string(from: date)
-            } else {
-              dayView.dayAccessibilityText = nil
-            }
-          },
-          updateHighlightState: { dayView, isHighlighted in
-            dayView.isHighlighted = isHighlighted
-          })
+        let dayAccessibilityText: String?
+        if let date = self?.calendar.date(from: day.components) {
+          dayAccessibilityText = self?.dayDateFormatter.string(from: date)
+        } else {
+          dayAccessibilityText = nil
+        }
+
+        return CalendarItem<DayView>(
+          initialConfiguration: .init(isSelectedStyle: isSelected),
+          viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
 
       .withDayRangeItemProvider(for: dateRanges) { dayRangeLayoutContext in
-        CalendarItem<DayRangeIndicatorView, [CGRect]>(
-          viewModel: dayRangeLayoutContext.daysAndFrames.map { $0.frame },
-          styleID: "Default",
-          buildView: { DayRangeIndicatorView() },
-          updateViewModel: { dayRangeIndicatorView, framesOfDaysToHighlight in
-            dayRangeIndicatorView.framesOfDaysToHighlight = framesOfDaysToHighlight
-          })
+        let framesOfDaysToHighlight = dayRangeLayoutContext.daysAndFrames.map { $0.frame }
+
+        return CalendarItem<DayRangeIndicatorView>(
+          initialConfiguration: .init(),
+          viewModel: .init(framesOfDaysToHighlight: framesOfDaysToHighlight))
       }
   }
 

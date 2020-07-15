@@ -1577,11 +1577,12 @@ final class VisibleItemsProviderTests: XCTestCase {
     monthHeaderHeight: 50)
 
   private static var mockCalendarItem: AnyCalendarItem {
-    CalendarItem<UIView, Int>(
-      viewModel: 0,
-      styleID: "",
-      buildView: { UIView(frame: .zero) },
-      updateViewModel: { _, _ in })
+    final class MockView: UIView, CalendarItemView {
+      init(initialConfiguration: Int) { super.init(frame: .zero) }
+      required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+      func setViewModel(_ viewModel: Int) { }
+    }
+    return CalendarItem<MockView>(initialConfiguration: 0, viewModel: 0)
   }
 
   private static func makeContent(

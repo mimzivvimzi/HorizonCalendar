@@ -15,118 +15,66 @@
 
 import UIKit
 
-// MARK: - CalendarItemViewModelEquatable
-
-/// Facilitates the comparison of type-earased `AnyCalendarItem`s based on their concrete types' `viewModel`s.
-public protocol CalendarItemViewModelEquatable {
-
-  /// Compares the view models of two `CalendarItem`s for equality.
-  ///
-  /// - Parameters:
-  ///   - otherCalendarItem: The calendar item to compare to `self`.
-  /// - Returns: `true` if `otherCalendarItem` has the same type as `self` and `otherCalendarItem.viewModel`
-  /// equals `self.viewModel`.
-  func isViewModel(equalToViewModelOf otherCalendarItem: CalendarItemViewModelEquatable) -> Bool
-
-}
-
-// MARK: - AnyCalendarItem
-
-/// A type-erased calendar item.
-///
-/// Useful for working with types conforming to `CalendarItem` without knowing the underlying concrete type.
-public protocol AnyCalendarItem: CalendarItemViewModelEquatable {
-
-  /// A reuse identifier used by `CalendarView` to differentiate between items based on their type and style.
-  var reuseIdentifier: String { get }
-
-  func buildView() -> UIView
-  func updateViewModel(view: UIView)
-  func updateHighlightState(view: UIView, isHighlighted: Bool)
-
-}
-
 // MARK: - CalendarItem
 
-/// Represents an item that `CalendarView` will display.
+/// Represents a view that `CalendarView` will display at a particular location.
 ///
 /// `CalendarItem`s are what are provided to `CalendarView` via `CalendarViewContent`, and are used to tell
 /// `CalendarView` what types of views to display for month headers, day-of-week items, day items, day-range items, and more.
 ///
-/// `CalendarItem` is generic over a `ViewType` and a `ViewModel`.
-/// `ViewType` should be a `UIView` or `UIView` subclass, and is what will be displayed  by `CalendarView`.
-/// `ViewModel` should be a type that contains all of the data necessary to populate an instance of`ViewType` with data.
-public struct CalendarItem<ViewType, ViewModel>: AnyCalendarItem where
-  ViewType: UIView,
-  ViewModel: Equatable
-{
+/// `CalendarItem` is generic over a `ViewType` - a special type of view that is a function of its `initialConfiguration` and
+/// its `viewModel`.
+/// `ViewType` is the type of view that will be displayed by `CalendarView`, and should be a `UIView` or `UIView` subclass
+/// that conforms to `CalendarItemView`.
+public struct CalendarItem<ViewType>: AnyCalendarItem where ViewType: CalendarItemView {
 
   // MARK: Lifecycle
 
   /// Initializes a new `CalendarItem`.
   ///
   /// - Parameters:
-  ///   - viewModel: The view model containing all of the data necessary to populate an instance of`ViewType`.
-  ///   - styleID: A string that uniquely identifies anything that makes an instance of  your `ViewType` different that isn't
-  ///   captured by the `viewModel`. For example, if you use the same `ViewType` but change its font color, and font color is not a
-  ///   property in your `viewModel`, use different `styleID`s for each, which indicates to `CalendarView` that the two views
-  ///   are not interchangable / reusable.
-  ///   - buildView: A closure (that is retained) to handle the initialization of your `ViewType`.
-  ///   - updateViewModel: A closure (that is retained) to handle the updating of your `ViewType`. Use this closure to set the
-  ///   view model on your view.
-  ///   - updateHighlightState: A closure (that is retained) to handle highlight state changes for your `ViewType`. This
-  ///   closure will be invoked when a touch-down event is detected on a day. Leave this unimplemented if your view does not have or
-  ///   need a highlight state.
-  ///   - view: The view, of type `ViewType`, to be configured with the `viewModel`.
-  ///   - isHighlighted: Whether the view should be configured with a highlight state or not.
-  public init(
-    viewModel: ViewModel,
-    styleID: String,
-    buildView: @escaping () -> ViewType,
-    updateViewModel: @escaping (_ view: ViewType, _ viewModel: ViewModel) -> Void,
-    updateHighlightState: ((_ view: ViewType, _ isHighlighted: Bool) -> Void)? = nil)
-  {
+  ///   - initialConfiguration: A type containing all of the immutable / view-model-independent properties necessary to
+  ///   initialize a `ViewType`. Use this to configure appearance options that do not change based on the data in the `viewModel`.
+  ///   For example, you might pass a type that contains properties to configure a `UILabel`'s `textAlignment`, `textColor`,
+  ///   and `font`, assuming none of those things change in response to `viewModel` updates.
+  ///   - viewModel: A type containing all of the variable data necessary to update an instance of`ViewType`. Use this to specify
+  ///   the dynamic, data-driven parts of the view.
+  public init(initialConfiguration: ViewType.InitialConfiguration, viewModel: ViewType.ViewModel) {
+    self.initialConfiguration = initialConfiguration
     self.viewModel = viewModel
-    reuseIdentifier = "ViewType: \(ViewType.self), styleID: \(styleID)"
-    _buildView = buildView
-    _updateViewModel = updateViewModel
-    _updateHighlightState = updateHighlightState
+
+    itemViewDifferentiator = CalendarItemViewDifferentiator(
+      viewType: AnyHashable("\(ViewType.self)"),
+      initialConfiguration: AnyHashable(initialConfiguration))
   }
 
   // MARK: Public
 
-  /// The view model that represents the data backing your `ViewType`.
-  ///
-  /// `ViewModel` must conform to `Equatable`; this allows `CalendarView` to differentiate between multiple
-  /// `CalendarItem`s, even if those `CalendarItem`s render the same `ViewType`.
-  public let viewModel: ViewModel
+  /// A type that helps `ItemViewReuseManager` determine which views are compatible with one another and can therefore be
+  /// recycled / reused.
+  public let itemViewDifferentiator: CalendarItemViewDifferentiator
 
-  /// The reuse identifier used by `CalendarView` to differentiate between items based on their type and style.
-  public let reuseIdentifier: String
-
-  /// Builds an instance of `ViewType` by invoking the `buildView` closure from `CalendarItem`'s initializer.
+  /// Builds an instance of `ViewType` by invoking its initializer with `initialConfiguration`.
   public func buildView() -> UIView {
-    _buildView()
+    ViewType.init(initialConfiguration: initialConfiguration)
   }
 
-  /// Updates the view model on an instance of `ViewType` by invoking the `updateViewModel` closure from
-  /// `CalendarItem`'s initializer.
+  /// Updates the view model on an instance of `ViewType` by invoking `setViewModel`.
   public func updateViewModel(view: UIView) {
     guard let view = view as? ViewType else {
       preconditionFailure("Failed to convert the UIView to the type-erased ViewType")
     }
 
-    _updateViewModel(view, viewModel)
+    view.setViewModel(viewModel)
   }
 
-  /// Updates the highlight state on an instance of `ViewType` by invoking the `updateHighlightState` closure from
-  /// `CalendarItem`'s initializer.
-  public func updateHighlightState(view: UIView, isHighlighted: Bool) {
-    guard let view = view as? ViewType else {
-      preconditionFailure("Failed to convert the UIView to the type-erased ViewType")
-    }
-
-    _updateHighlightState?(view, isHighlighted)
+  /// Compares the initial configurations of two `CalendarItem`s for equality.
+  public func isInitialConfiguration(
+    equalToInitialConfigurationOf otherCalendarItem: CalendarItemInitialConfigurationEquatable)
+    -> Bool
+  {
+    guard let otherCalendarItem = otherCalendarItem as? Self else { return false }
+    return initialConfiguration == otherCalendarItem.initialConfiguration
   }
 
   /// Compares the view models of two `CalendarItem`s for equality.
@@ -140,8 +88,7 @@ public struct CalendarItem<ViewType, ViewModel>: AnyCalendarItem where
 
   // MARK: Private
 
-  private let _buildView: () -> ViewType
-  private let _updateViewModel: (_ view: ViewType, _ viewModel: ViewModel) -> Void
-  private let _updateHighlightState: ((_ view: ViewType, _ isHighlighted: Bool) -> Void)?
+  private let initialConfiguration: ViewType.InitialConfiguration
+  private let viewModel: ViewType.ViewModel
 
 }
