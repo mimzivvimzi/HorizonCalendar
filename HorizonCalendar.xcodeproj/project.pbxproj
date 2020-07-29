@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		938DA40F24BEEB1A008A3B47 /* CalendarItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938DA40E24BEEB1A008A3B47 /* CalendarItemView.swift */; };
+		938DA40F24BEEB1A008A3B47 /* CalendarItemViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938DA40E24BEEB1A008A3B47 /* CalendarItemViewRepresentable.swift */; };
 		938DA41124BEFFCB008A3B47 /* AnyCalendarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938DA41024BEFFCB008A3B47 /* AnyCalendarItem.swift */; };
 		938DA41324BF0FFF008A3B47 /* DefaultItemProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 938DA41224BF0FFF008A3B47 /* DefaultItemProviders.swift */; };
 		9396F3CC2483261B008AD306 /* HorizonCalendar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9396F3C22483261B008AD306 /* HorizonCalendar.framework */; };
@@ -62,7 +62,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		938DA40E24BEEB1A008A3B47 /* CalendarItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarItemView.swift; sourceTree = "<group>"; };
+		938DA40E24BEEB1A008A3B47 /* CalendarItemViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarItemViewRepresentable.swift; sourceTree = "<group>"; };
 		938DA41024BEFFCB008A3B47 /* AnyCalendarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCalendarItem.swift; sourceTree = "<group>"; };
 		938DA41224BF0FFF008A3B47 /* DefaultItemProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultItemProviders.swift; sourceTree = "<group>"; };
 		9396F3C22483261B008AD306 /* HorizonCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HorizonCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,7 +183,7 @@
 			children = (
 				938DA41024BEFFCB008A3B47 /* AnyCalendarItem.swift */,
 				939E693224837E8700A8BCC7 /* CalendarItem.swift */,
-				938DA40E24BEEB1A008A3B47 /* CalendarItemView.swift */,
+				938DA40E24BEEB1A008A3B47 /* CalendarItemViewRepresentable.swift */,
 				939E691724837E0200A8BCC7 /* CalendarView.swift */,
 				939E693524837E8700A8BCC7 /* CalendarViewContent.swift */,
 				939E693324837E8700A8BCC7 /* CalendarViewScrollPosition.swift */,
@@ -346,7 +346,7 @@
 				939E692724837E0300A8BCC7 /* VisibleItemsProvider.swift in Sources */,
 				939E693024837E0300A8BCC7 /* FrameProvider.swift in Sources */,
 				939E693724837E8700A8BCC7 /* CalendarItem.swift in Sources */,
-				938DA40F24BEEB1A008A3B47 /* CalendarItemView.swift in Sources */,
+				938DA40F24BEEB1A008A3B47 /* CalendarItemViewRepresentable.swift in Sources */,
 				939E692924837E0300A8BCC7 /* VisibleCalendarItem.swift in Sources */,
 				939E693C2483824600A8BCC7 /* MonthRange.swift in Sources */,
 				93A361F4248332AE00E6544A /* ScreenPixelAlignment.swift in Sources */,

@@ -271,8 +271,8 @@ final class ItemViewReuseManagerTests: XCTestCase {
       subsequentVisibleItems,
       viewHandler: { _, item, previousBackingItem in
         switch item.calendarItem.itemViewDifferentiator {
-        case .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")),
-             .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_3")):
+        case .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_1")),
+             .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_3")):
           XCTAssert(
             item.calendarItem.itemViewDifferentiator == previousBackingItem?.calendarItem.itemViewDifferentiator,
             """
@@ -410,13 +410,13 @@ final class ItemViewReuseManagerTests: XCTestCase {
       })
 
     let expectedReuseCountsForDifferentiators: [CalendarItemViewDifferentiator: Int] = [
-      .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_0")): 2,
-       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")): 3,
+      .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_0")): 2,
+       .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_1")): 3,
     ]
     let expectedNewViewCountsForDifferentiators: [CalendarItemViewDifferentiator: Int] = [
-       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_0")): 1,
-       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_1")): 2,
-       .init(viewType: AnyHashable(0), initialConfiguration: AnyHashable("item_type_2")): 1,
+       .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_0")): 1,
+       .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_1")): 2,
+       .init(viewType: AnyHashable(0), invariantViewProperties: AnyHashable("item_type_2")): 1,
     ]
 
     XCTAssert(
@@ -443,7 +443,7 @@ private struct MockCalendarItem: AnyCalendarItem {
   init(reuseIdentifier: String) {
     itemViewDifferentiator = CalendarItemViewDifferentiator(
       viewType: AnyHashable(0),
-      initialConfiguration: AnyHashable(reuseIdentifier))
+      invariantViewProperties: AnyHashable(reuseIdentifier))
   }
 
   // MARK: Internal
@@ -456,8 +456,8 @@ private struct MockCalendarItem: AnyCalendarItem {
 
   func updateHighlightState(view: UIView, isHighlighted: Bool) { }
 
-  func isInitialConfiguration(
-    equalToInitialConfigurationOf otherCalendarItem: CalendarItemInitialConfigurationEquatable)
+  func isInvariantViewProperties(
+    equalToInvariantViewPropertiesOf otherCalendarItem: CalendarItemInvariantViewPropertiesEquatable)
     -> Bool
   {
     false

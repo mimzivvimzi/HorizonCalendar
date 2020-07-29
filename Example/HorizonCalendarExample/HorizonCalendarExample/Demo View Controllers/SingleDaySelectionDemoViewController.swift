@@ -121,7 +121,7 @@ final class SingleDaySelectionDemoViewController: UIViewController, DemoViewCont
         }
 
         return CalendarItem<DayView>(
-          initialConfiguration: .init(isSelectedStyle: isSelected),
+          invariantViewProperties: .init(isSelectedStyle: isSelected),
           viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
   }

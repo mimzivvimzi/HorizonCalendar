@@ -44,10 +44,13 @@ final class ItemView: UIView {
 
   var calendarItem: AnyCalendarItem {
     didSet {
-      guard calendarItem.isInitialConfiguration(equalToInitialConfigurationOf: oldValue) else {
+      guard
+        calendarItem.isInvariantViewProperties(equalToInvariantViewPropertiesOf: oldValue)
+      else
+      {
         preconditionFailure("""
           Cannot configure a reused `ItemView` with a calendar item that was created with a
-          different initial configuration.
+          different instace of invariant view properties.
         """)
       }
 

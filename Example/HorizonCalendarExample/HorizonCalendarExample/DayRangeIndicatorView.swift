@@ -18,11 +18,11 @@ import UIKit
 
 // MARK: - DayRangeIndicatorView
 
-final class DayRangeIndicatorView: UIView, CalendarItemView {
+final class DayRangeIndicatorView: UIView, CalendarItemViewRepresentable {
 
   // MARK: Lifecycle
 
-  init(initialConfiguration: InitialConfiguration) {
+  init(invariantViewProperties: InvariantViewProperties) {
     super.init(frame: .zero)
     backgroundColor = .clear
   }
@@ -74,11 +74,11 @@ final class DayRangeIndicatorView: UIView, CalendarItemView {
 
 }
 
-// MARK: - InitialConfiguration
+// MARK: - InvariantViewProperties
 
 extension DayRangeIndicatorView {
 
-  struct InitialConfiguration: Hashable { }
+  struct InvariantViewProperties: Hashable { }
 
 }
 

@@ -18,17 +18,17 @@ import UIKit
 
 // MARK: - DayView
 
-final class DayView: UIView, CalendarItemView {
+final class DayView: UIView, CalendarItemViewRepresentable {
 
   // MARK: Lifecycle
 
-  init(initialConfiguration: InitialConfiguration) {
+  init(invariantViewProperties: InvariantViewProperties) {
     super.init(frame: .zero)
 
     addSubview(dayLabel)
 
     layer.borderColor = UIColor.blue.cgColor
-    layer.borderWidth = initialConfiguration.isSelectedStyle ? 2 : 0
+    layer.borderWidth = invariantViewProperties.isSelectedStyle ? 2 : 0
   }
 
   required init?(coder: NSCoder) {
@@ -101,11 +101,11 @@ extension DayView {
 
 }
 
-// MARK: - InitialConfiguration
+// MARK: - InvariantViewProperties
 
 extension DayView {
 
-  struct InitialConfiguration: Hashable {
+  struct InvariantViewProperties: Hashable {
     let isSelectedStyle: Bool
   }
 

@@ -18,11 +18,11 @@ import UIKit
 
 // MARK: - TooltipView
 
-final class TooltipView: UIView, CalendarItemView {
+final class TooltipView: UIView, CalendarItemViewRepresentable {
 
   // MARK: Lifecycle
 
-  init(initialConfiguration: InitialConfiguration) {
+  init(invariantViewProperties: InvariantViewProperties) {
     super.init(frame: .zero)
 
     addSubview(backgroundView)
@@ -101,11 +101,11 @@ final class TooltipView: UIView, CalendarItemView {
 
 }
 
-// MARK: - InitialConfiguration
+// MARK: - InvariantViewProperties
 
 extension TooltipView {
 
-  struct InitialConfiguration: Hashable { }
+  struct InvariantViewProperties: Hashable { }
 
 }
 

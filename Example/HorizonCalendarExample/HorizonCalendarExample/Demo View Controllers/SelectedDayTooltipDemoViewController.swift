@@ -128,13 +128,13 @@ final class SelectedDayTooltipDemoViewController: UIViewController, DemoViewCont
         }
 
         return CalendarItem<DayView>(
-          initialConfiguration: .init(isSelectedStyle: isSelected),
+          invariantViewProperties: .init(isSelectedStyle: isSelected),
           viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
 
       .withOverlayItemProvider(for: overlaidItemLocations) { overlayLayoutContext in
         CalendarItem<TooltipView>(
-          initialConfiguration: .init(),
+          invariantViewProperties: .init(),
           viewModel: .init(
             text: "Selected Day",
             frameOfTooltippedItem: overlayLayoutContext.overlaidItemFrame))

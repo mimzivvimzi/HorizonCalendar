@@ -21,7 +21,7 @@ import UIKit
 ///
 /// Useful for working with types conforming to `CalendarItem` without knowing the underlying concrete type.
 public protocol AnyCalendarItem:
-  CalendarItemInitialConfigurationEquatable,
+  CalendarItemInvariantViewPropertiesEquatable,
   CalendarItemViewModelEquatable
 {
   var itemViewDifferentiator: CalendarItemViewDifferentiator { get }
@@ -37,22 +37,23 @@ public protocol AnyCalendarItem:
 /// recycled / reused.
 public struct CalendarItemViewDifferentiator: Hashable {
   let viewType: AnyHashable
-  let initialConfiguration: AnyHashable
+  let invariantViewProperties: AnyHashable
 }
 
-// MARK: - CalendarItemInitialConfigurationEquatable
+// MARK: - CalendarItemInvariantViewPropertiesEquatable
 
-/// Facilitates the comparison of type-earased `AnyCalendarItem`s based on their concrete types' `initialConfiguration`s.
-public protocol CalendarItemInitialConfigurationEquatable {
+/// Facilitates the comparison of type-earased `AnyCalendarItem`s based on their concrete types'
+/// `invariantViewProperties`s.
+public protocol CalendarItemInvariantViewPropertiesEquatable {
 
   /// Compares the view configurations of two `CalendarItem`s for equality.
   ///
   /// - Parameters:
   ///   - otherCalendarItem: The calendar item to compare to `self`.
   /// - Returns: `true` if `otherCalendarItem` has the same type as `self` and
-  /// `otherCalendarItem.initialConfiguration` equals `self.initialConfiguration`.
-  func isInitialConfiguration(
-    equalToInitialConfigurationOf otherCalendarItem: CalendarItemInitialConfigurationEquatable)
+  /// `otherCalendarItem.invariantViewProperties` equals `self.invariantViewProperties`.
+  func isInvariantViewProperties(
+    equalToInvariantViewPropertiesOf otherCalendarItem: CalendarItemInvariantViewPropertiesEquatable)
     -> Bool
 
 }

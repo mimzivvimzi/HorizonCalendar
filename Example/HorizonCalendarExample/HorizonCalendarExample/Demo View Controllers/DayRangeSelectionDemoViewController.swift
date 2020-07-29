@@ -153,7 +153,7 @@ final class DayRangeSelectionDemoViewController: UIViewController, DemoViewContr
         }
 
         return CalendarItem<DayView>(
-          initialConfiguration: .init(isSelectedStyle: isSelected),
+          invariantViewProperties: .init(isSelectedStyle: isSelected),
           viewModel: .init(dayText: dayText, dayAccessibilityText: dayAccessibilityText))
       }
 
@@ -161,7 +161,7 @@ final class DayRangeSelectionDemoViewController: UIViewController, DemoViewContr
         let framesOfDaysToHighlight = dayRangeLayoutContext.daysAndFrames.map { $0.frame }
 
         return CalendarItem<DayRangeIndicatorView>(
-          initialConfiguration: .init(),
+          invariantViewProperties: .init(),
           viewModel: .init(framesOfDaysToHighlight: framesOfDaysToHighlight))
       }
   }

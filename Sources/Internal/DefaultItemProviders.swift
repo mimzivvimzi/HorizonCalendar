@@ -17,9 +17,9 @@ import UIKit
 
 // MARK: - DefaultLabel
 
-final class DefaultLabel: UILabel, CalendarItemView {
+final class DefaultLabel: UILabel, CalendarItemViewRepresentable {
 
-  struct InitialConfiguration: Hashable {
+  struct InvariantViewProperties: Hashable {
     let font: UIFont
     let textAlignment: NSTextAlignment
     let textColor: UIColor
@@ -35,15 +35,15 @@ final class DefaultLabel: UILabel, CalendarItemView {
 
   // MARK: Lifecycle
 
-  init(initialConfiguration: InitialConfiguration) {
+  init(invariantViewProperties: InvariantViewProperties) {
     super.init(frame: .zero)
 
-    font = initialConfiguration.font
-    textAlignment = initialConfiguration.textAlignment
-    textColor = initialConfiguration.textColor
-    backgroundColor = initialConfiguration.backgroundColor
-    isAccessibilityElement = initialConfiguration.isAccessibilityElement
-    accessibilityTraits = initialConfiguration.accessibilityTraits
+    font = invariantViewProperties.font
+    textAlignment = invariantViewProperties.textAlignment
+    textColor = invariantViewProperties.textColor
+    backgroundColor = invariantViewProperties.backgroundColor
+    isAccessibilityElement = invariantViewProperties.isAccessibilityElement
+    accessibilityTraits = invariantViewProperties.accessibilityTraits
   }
 
   required init?(coder: NSCoder) {
@@ -81,7 +81,7 @@ extension CalendarViewContent {
     let monthText = dateFormatter.string(from: calendar.firstDate(of: month))
 
     return CalendarItem<DefaultLabel>(
-      initialConfiguration: .init(
+      invariantViewProperties: .init(
         font: UIFont.systemFont(ofSize: 22),
         textAlignment: .natural,
         textColor: textColor,
@@ -110,7 +110,7 @@ extension CalendarViewContent {
     let dayOfWeekText = dateFormatter.veryShortStandaloneWeekdaySymbols[weekdayIndex]
 
     return CalendarItem<DefaultLabel>(
-      initialConfiguration: .init(
+      invariantViewProperties: .init(
         font: UIFont.systemFont(ofSize: 16),
         textAlignment: .center,
         textColor: textColor,
@@ -139,7 +139,7 @@ extension CalendarViewContent {
     let accessibilityLabel = dateFormatter.string(from: date)
 
     return CalendarItem<DefaultLabel>(
-      initialConfiguration: .init(
+      invariantViewProperties: .init(
         font: UIFont.systemFont(ofSize: 18),
         textAlignment: .center,
         textColor: textColor,
